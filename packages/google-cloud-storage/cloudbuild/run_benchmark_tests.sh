@@ -133,10 +133,9 @@ if __name__ == '__main__':
 "
 
 echo "--- 4. Executing pytest benchmark suite (${ROUNDS} rounds) ---"
-pytest --benchmark-json="${OUT_JSON}" \
-  --benchmark-rounds="${ROUNDS}" \
+python3 -m pytest --benchmark-json="${OUT_JSON}" \
   -rA \
-  tests/perf/microbenchmarks/time_based/reads/test_reads.py || true
+  tests/perf/microbenchmarks/time_based/reads/test_reads.py
 
 if [ -s "${OUT_JSON}" ]; then
   echo "========================================================================"
