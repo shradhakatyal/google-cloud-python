@@ -91,11 +91,16 @@ def format_markdown_summary(
         else:
             mem_str = "N/A"
 
+        try:
+            throughput_str = f"{float(throughput_mib):,.2f} MiB/s"
+        except (ValueError, TypeError):
+            throughput_str = f"{throughput_mib} MiB/s"
+
         short_name = name.replace(
             "test_downloads_multi_proc_multi_coro[", ""
         ).replace("]", "")
         rows.append(
-            f"| **`{short_name}`** | **`{throughput_mib} MiB/s`** |"
+            f"| **`{short_name}`** | **`{throughput_str}`** |"
             f" **`{net_str}`** | `{cpu_max}` |  Passed |"
         )
 

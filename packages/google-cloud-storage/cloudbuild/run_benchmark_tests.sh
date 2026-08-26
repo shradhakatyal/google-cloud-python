@@ -138,10 +138,31 @@ python3 -m pytest --benchmark-json="${OUT_JSON}" \
   tests/perf/microbenchmarks/time_based/reads/test_reads.py
 
 if [ -s "${OUT_JSON}" ]; then
-  echo "========================================================================"
-  echo " BENCHMARK STATS SUMMARY (${ROUNDS} Rounds)"
-  echo "========================================================================"
-  grep -E '"name":|"avg_throughput_mib_s":|"net_throughput_mb_s":|"cpu_max_global":' "${OUT_JSON}" -B 1 -A 2 || true
+  python3 -c "
+import json
+with open('${OUT_JSON}') as f:
+    d = json.load(f)
+benchmarks = d.get('benchmarks', [])
+print('\n' + '='*85)
+print('              GCS DIRECTPATH READ BENCHMARK PERFORMANCE RESULTS')
+print('='*85)
+header = f'| {\"Workload Pattern\":<36} | {\"Avg Throughput\":<17} | {\"Network Bandwidth\":<22} | {\"CPU Usage\":<9} |'
+print(header)
+print('|' + '-'*38 + '|' + '-'*19 + '|' + '-'*24 + '|' + '-'*11 + '|')
+for b in benchmarks:
+    name = b.get('name', '').replace('test_downloads_multi_proc_multi_coro[', '').replace(']', '')
+    extra = b.get('extra_info', {})
+    avg_mib = extra.get('avg_throughput_mib_s', 'N/A')
+    net_mb = extra.get('net_throughput_mb_s')
+    if net_mb:
+        net_str = f'{float(net_mb):,.1f} MB/s ({float(net_mb)*0.008:.1f} Gbps)'
+    else:
+        net_str = 'N/A'
+    cpu = extra.get('cpu_max_global', 'N/A')
+    row = f'| {name:<36} | {avg_mib + \" MiB/s\":<17} | {net_str:<22} | {str(cpu):<9} |'
+    print(row)
+print('='*85 + '\n')
+"
 
   if [ -n "${UPLOAD_GCS_PREFIX}" ]; then
     GCS_DEST="${UPLOAD_GCS_PREFIX}/test_result_$(hostname)_$(date +%s).json"
