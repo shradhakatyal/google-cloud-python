@@ -33,6 +33,7 @@ echo "========================================================================"
 export HOME="${HOME:-/root}"
 export DEFAULT_RAPID_ZONAL_BUCKET="${TARGET_BUCKET}"
 export DEFAULT_STANDARD_BUCKET="${TARGET_BUCKET}"
+export USE_PRESEEDED_BENCHMARK_OBJECTS="1"
 
 # Determine repository root
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
