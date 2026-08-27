@@ -49,7 +49,7 @@ steps:
         gcloud compute instances start "${_VM_NAME}" --zone="${_ZONE}"
     waitFor: ["-"]
 
-  # Step 3: Run the benchmark directly on the VM via SSH, fetch results, and stop the VM
+  # Step 3: Run the benchmark directly on the VM via private internal IP SSH, fetch results, and stop the VM
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     id: "run-benchmark-on-vm"
     entrypoint: "bash"
@@ -57,23 +57,23 @@ steps:
       - "-c"
       - |
         set -e
-        echo "Waiting for VM ${_VM_NAME} to become accessible over SSH..."
+        echo "Waiting for VM ${_VM_NAME} to become accessible over internal SSH..."
         for i in $(seq 1 20); do
-          if gcloud compute ssh "${_VM_NAME}" --zone="${_ZONE}" --ssh-key-file=/workspace/.ssh/google_compute_engine --command="echo VM is ready" 2>/dev/null; then
-            echo "VM SSH connection established successfully."
+          if gcloud compute ssh "${_VM_NAME}" --zone="${_ZONE}" --internal-ip --ssh-key-file=/workspace/.ssh/google_compute_engine --command="echo VM is ready" 2>/dev/null; then
+            echo "VM internal SSH connection established successfully."
             break
           fi
-          echo "Waiting for VM SSH availability... (attempt $$i/20)"
+          echo "Waiting for VM internal SSH availability... (attempt $$i/20)"
           sleep 10
         done
 
-        echo "Copying package archive and runner script to VM..."
+        echo "Copying package archive and runner script to VM over internal IP..."
         gcloud compute scp /workspace/google-cloud-storage.tar.gz packages/google-cloud-storage/cloudbuild/run_benchmark_tests.sh \
-          "${_VM_NAME}":~ --zone="${_ZONE}" --ssh-key-file=/workspace/.ssh/google_compute_engine
+          "${_VM_NAME}":~ --zone="${_ZONE}" --internal-ip --ssh-key-file=/workspace/.ssh/google_compute_engine
 
         echo "Executing benchmark test suite directly on VM via SSH..."
         set +e
-        gcloud compute ssh "${_VM_NAME}" --zone="${_ZONE}" --ssh-key-file=/workspace/.ssh/google_compute_engine \
+        gcloud compute ssh "${_VM_NAME}" --zone="${_ZONE}" --internal-ip --ssh-key-file=/workspace/.ssh/google_compute_engine \
           --command="tar -xzf google-cloud-storage.tar.gz && cd google-cloud-storage && ulimit -n ${_ULIMIT}; PROCESSES=${_PROCESSES} COROS=${_COROS} FILE_SIZE_MIB=${_FILE_SIZE_MIB} CHUNK_SIZE_KIB=${_CHUNK_SIZE_KIB} ROUNDS=${_ROUNDS} TARGET_BUCKET=${_ZONAL_BUCKET} OUT_JSON=/tmp/bench_result.json bash cloudbuild/run_benchmark_tests.sh"
         TEST_EXIT_CODE=$?
         set -e
@@ -82,7 +82,7 @@ steps:
         mkdir -p /workspace/report
         echo "Fetching benchmark result JSON from VM..."
         gcloud compute scp "${_VM_NAME}":/tmp/bench_result.json /workspace/report/bench_result.json \
-          --zone="${_ZONE}" --ssh-key-file=/workspace/.ssh/google_compute_engine 2>/dev/null || true
+          --zone="${_ZONE}" --internal-ip --ssh-key-file=/workspace/.ssh/google_compute_engine 2>/dev/null || true
 
         # Turn off the standing VM to save quota and cost
         echo "Stopping VM ${_VM_NAME}..."
@@ -132,3 +132,5 @@ timeout: "3600s"
 options:
   logging: CLOUD_LOGGING_ONLY
   dynamicSubstitutions: true
+  pool:
+    name: "projects/${PROJECT_ID}/locations/us-west4/workerPools/benchmark-worker-pool"
