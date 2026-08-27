@@ -74,7 +74,7 @@ steps:
         echo "Executing benchmark test suite directly on VM via SSH..."
         set +e
         gcloud compute ssh "${_VM_NAME}" --zone="${_ZONE}" --internal-ip --ssh-key-file=/workspace/.ssh/google_compute_engine \
-          --command="tar -xzf google-cloud-storage.tar.gz && cd google-cloud-storage && ulimit -n ${_ULIMIT}; PROCESSES=${_PROCESSES} COROS=${_COROS} FILE_SIZE_MIB=${_FILE_SIZE_MIB} CHUNK_SIZE_KIB=${_CHUNK_SIZE_KIB} ROUNDS=${_ROUNDS} TARGET_BUCKET=${_ZONAL_BUCKET} OUT_JSON=\$HOME/bench_result.json bash cloudbuild/run_benchmark_tests.sh"
+          --command="tar -xzf google-cloud-storage.tar.gz && cd google-cloud-storage && ulimit -n ${_ULIMIT}; PROCESSES=${_PROCESSES} COROS=${_COROS} FILE_SIZE_MIB=${_FILE_SIZE_MIB} CHUNK_SIZE_KIB=${_CHUNK_SIZE_KIB} ROUNDS=${_ROUNDS} TARGET_BUCKET=${_ZONAL_BUCKET} bash cloudbuild/run_benchmark_tests.sh"
         TEST_EXIT_CODE=$?
         set -e
 
