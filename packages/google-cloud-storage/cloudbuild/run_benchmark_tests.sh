@@ -15,7 +15,7 @@ CHUNK_SIZE_KIB="${CHUNK_SIZE_KIB:-102400}"   # ~100 MiB read chunks by default
 ROUNDS="${ROUNDS:-5}"                        # Run benchmark 5 times
 BUCKET_TYPE="${BUCKET_TYPE:-zonal}"          # "zonal" uses BidiReadObject gRPC DirectPath
 TARGET_BUCKET="${DEFAULT_RAPID_ZONAL_BUCKET:-shradhakatyal-read-bench-zb-us-west4-a}"
-OUT_JSON="${OUT_JSON:-/tmp/bench_result.json}"
+OUT_JSON="${OUT_JSON:-${HOME:-/tmp}/bench_result.json}"
 UPLOAD_GCS_PREFIX="${UPLOAD_GCS_PREFIX:-}"
 
 echo "========================================================================"
@@ -133,6 +133,7 @@ if __name__ == '__main__':
 "
 
 echo "--- 4. Executing pytest benchmark suite (${ROUNDS} rounds) ---"
+rm -f "${OUT_JSON}" 2>/dev/null || true
 python3 -m pytest --benchmark-json="${OUT_JSON}" \
   -rA \
   tests/perf/microbenchmarks/time_based/reads/test_reads.py
