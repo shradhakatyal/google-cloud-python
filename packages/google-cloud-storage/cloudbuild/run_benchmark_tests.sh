@@ -80,6 +80,20 @@ with open(path, 'w') as f:
 sed -i 's/num_files = num_processes \* num_coros/num_files = num_processes/g' tests/perf/microbenchmarks/time_based/reads/config.py || true
 sed -i 's/num_files = num_processes \* num_coros/num_files = num_processes/g' tests/perf/microbenchmarks/reads/config.py || true
 
+# Patch conftest.py at runtime on VM to use pre-seeded test objects and bypass 480GB re-upload
+python3 -c "
+path = 'tests/perf/microbenchmarks/conftest.py'
+try:
+    with open(path) as f:
+        s = f.read()
+    if '_create_files(' in s:
+        s = s.replace('files_names = _create_files(\n            params.num_files,\n            params.bucket_name,\n            params.bucket_type,\n            params.file_size_bytes,\n        )', 'files_names = [f\"fio-go_storage_fio.0.{i}\" for i in range(params.num_files)]')
+        with open(path, 'w') as f:
+            f.write(s)
+except Exception as e:
+    print(f'Warning patching conftest.py: {e}')
+"
+
 echo "--- 3. Pre-seeding & verifying ${PROCESSES} test objects (${FILE_SIZE_MIB} MiB each) in gs://${TARGET_BUCKET} ---"
 python3 -c "
 import multiprocessing, os, time

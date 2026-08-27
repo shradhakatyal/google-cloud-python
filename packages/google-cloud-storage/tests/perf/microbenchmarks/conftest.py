@@ -152,16 +152,10 @@ def workload_params(request):
             for _ in range(params.num_files)
         ]
     else:
-        use_seeded = os.environ.get("USE_PRESEEDED_BENCHMARK_OBJECTS", "1")
-        if use_seeded == "1":
-            files_names = [
-                f"fio-go_storage_fio.0.{i}" for i in range(params.num_files)
-            ]
-        else:
-            files_names = _create_files(
-                params.num_files,
-                params.bucket_name,
-                params.bucket_type,
-                params.file_size_bytes,
-            )
+        files_names = _create_files(
+            params.num_files,
+            params.bucket_name,
+            params.bucket_type,
+            params.file_size_bytes,
+        )
     return params, files_names
