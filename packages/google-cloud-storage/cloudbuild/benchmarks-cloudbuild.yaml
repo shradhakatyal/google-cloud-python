@@ -1,13 +1,13 @@
 substitutions:
   _ZONE: "us-west4-a"
-  _VM_NAME: "shradhakatyal-benchmarks-us-west4-a"
+  _VM_NAME: "gcs-benchmark-runner-us-west4-a"
   _ULIMIT: "65536"
   _PROCESSES: "48"
   _COROS: "1"
   _FILE_SIZE_MIB: "10240"
   _CHUNK_SIZE_KIB: "102400"
   _ROUNDS: "2"
-  _ZONAL_BUCKET: "shradhakatyal-read-bench-zb-us-west4-a"
+  _ZONAL_BUCKET: "gcs-read-bench-zb-us-west4-a"
   _PR_NUMBER: ""
   _REPO: "shradhakatyal/google-cloud-python"
 

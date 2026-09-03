@@ -272,19 +272,19 @@ def main():
     )
     parser.add_argument("--build-id", default="", help="Cloud Build ID")
     parser.add_argument(
-        "--project-id", default="vaibhavpratap-sdk-test", help="GCP Project ID"
+        "--project-id", default="gcs-python-sdk-testing", help="GCP Project ID"
     )
     parser.add_argument(
         "--region", default="us-west4", help="Cloud Build Region"
     )
     parser.add_argument(
         "--vm-name",
-        default="shradhakatyal-benchmarks-us-west4-a",
+        default="gcs-benchmark-runner-us-west4-a",
         help="VM Instance Name",
     )
     parser.add_argument(
         "--zonal-bucket",
-        default="shradhakatyal-read-bench-zb-us-west4-a",
+        default="gcs-read-bench-zb-us-west4-a",
         help="Target Zonal Bucket",
     )
     parser.add_argument(
