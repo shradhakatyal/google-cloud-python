@@ -21,7 +21,7 @@ from google.cloud import _storage_v2 as storage_v2
 from google.cloud._storage_v2.services.storage.transports.base import (
     DEFAULT_CLIENT_INFO,
 )
-from google.cloud.storage import __version__
+from google.cloud.storage import __version__, _opentelemetry_metrics
 
 _DEFAULT_HOST = "storage.googleapis.com"
 
@@ -63,6 +63,19 @@ class AsyncGrpcClient:
     :param attempt_direct_path:
         (Optional) Whether to attempt to use DirectPath for gRPC connections.
         Defaults to ``True``.
+
+    :type enable_metrics: bool or None
+    :param enable_metrics:
+        (Optional, Experimental) Whether to enable OpenTelemetry metrics. If
+        None, falls back to the GCP_STORAGE_PYTHON_ENABLE_OTEL_METRICS
+        environment variable, or False if unset.
+
+    :type enable_advanced_metrics: bool or None
+    :param enable_advanced_metrics:
+        (Optional, Experimental) Whether to enable advanced/debug OpenTelemetry
+        metrics. If None, falls back to the
+        GCP_STORAGE_PYTHON_ENABLE_OTEL_DEBUG_METRICS environment variable, or False
+        if unset. Requires base OpenTelemetry metrics to be enabled.
     """
 
     def __init__(
@@ -72,7 +85,12 @@ class AsyncGrpcClient:
         client_options=None,
         *,
         attempt_direct_path=True,
+        enable_metrics=None,
+        enable_advanced_metrics=None,
     ):
+        self._enable_metrics = enable_metrics
+        self._enable_advanced_metrics = enable_advanced_metrics
+
         if isinstance(credentials, auth_credentials.AnonymousCredentials):
             if client_options is None or client_options.api_endpoint is None:
                 raise ValueError(
@@ -97,6 +115,19 @@ class AsyncGrpcClient:
             client_info=client_info,
             client_options=client_options,
             attempt_direct_path=attempt_direct_path,
+        )
+
+    @property
+    def metrics_enabled(self) -> bool:
+        """Returns True if metrics recording is active for this client."""
+        return _opentelemetry_metrics.is_metrics_enabled(self._enable_metrics)
+
+    @property
+    def advanced_metrics_enabled(self) -> bool:
+        """Returns True if advanced metrics recording is active for this client."""
+        return _opentelemetry_metrics.is_advanced_metrics_enabled(
+            self._enable_advanced_metrics,
+            self._enable_metrics,
         )
 
     def _create_anonymous_client(self, client_options, credentials):
