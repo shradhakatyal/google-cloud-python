@@ -2,6 +2,7 @@ substitutions:
   _ZONE: "us-west4-a"
   _VM_NAME: "gcs-benchmark-runner-us-west4-a"
   _ULIMIT: "65536"
+  _BENCHMARK_TYPE: "read"
   _PROCESSES: "48"
   _COROS: "1"
   _FILE_SIZE_MIB: "10240"
@@ -10,6 +11,8 @@ substitutions:
   _BUCKET_TYPE: "rapid"
   _ZONAL_BUCKET: "gcs-read-bench-zb-us-west4-a"
   _REGIONAL_BUCKET: "gcs-read-bench-rb-us-west4"
+  _WRITE_ZONAL_BUCKET: "gcs-write-bench-zb-us-west4-a"
+  _WRITE_REGIONAL_BUCKET: "gcs-write-bench-rb-us-west4"
   _PR_NUMBER: ""
   _REPO: "googleapis/google-cloud-python"
 
@@ -85,7 +88,7 @@ steps:
         echo "Executing benchmark test suite directly on VM via SSH..."
         set +e
         gcloud compute ssh "${_VM_NAME}" --zone="${_ZONE}" --internal-ip --ssh-key-file=/workspace/.ssh/google_compute_engine \
-          --command="tar -xzf google-cloud-storage.tar.gz && cd google-cloud-storage && ulimit -n ${_ULIMIT}; PROCESSES=${_PROCESSES} COROS=${_COROS} FILE_SIZE_MIB=${_FILE_SIZE_MIB} CHUNK_SIZE_KIB=${_CHUNK_SIZE_KIB} ROUNDS=${_ROUNDS} BUCKET_TYPE=${_BUCKET_TYPE} RAPID_BUCKET=${_ZONAL_BUCKET} REGIONAL_BUCKET=${_REGIONAL_BUCKET} bash cloudbuild/run_benchmark_tests.sh"
+          --command="tar -xzf google-cloud-storage.tar.gz && cd google-cloud-storage && ulimit -n ${_ULIMIT}; BENCHMARK_TYPE=${_BENCHMARK_TYPE} PROCESSES=${_PROCESSES} COROS=${_COROS} FILE_SIZE_MIB=${_FILE_SIZE_MIB} CHUNK_SIZE_KIB=${_CHUNK_SIZE_KIB} ROUNDS=${_ROUNDS} BUCKET_TYPE=${_BUCKET_TYPE} RAPID_BUCKET=${_ZONAL_BUCKET} REGIONAL_BUCKET=${_REGIONAL_BUCKET} WRITE_RAPID_BUCKET=${_WRITE_ZONAL_BUCKET} WRITE_REGIONAL_BUCKET=${_WRITE_REGIONAL_BUCKET} bash cloudbuild/run_benchmark_tests.sh"
         TEST_EXIT_CODE=$?
         set -e
 
@@ -115,5 +118,6 @@ timeout: "3600s"
 options:
   logging: CLOUD_LOGGING_ONLY
   dynamicSubstitutions: true
+  substitutionOption: ALLOW_LOOSE
   pool:
     name: "projects/${PROJECT_ID}/locations/us-west4/workerPools/benchmark-worker-pool"

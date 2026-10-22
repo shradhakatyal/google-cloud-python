@@ -42,7 +42,7 @@ def display_results(result_path: str) -> None:
         sys.exit(0)
 
     print("\n" + "=" * 88)
-    print("                 GCS DIRECTPATH READ BENCHMARK PERFORMANCE RESULTS")
+    print("                   GCS DIRECTPATH BENCHMARK PERFORMANCE RESULTS")
     print("=" * 88)
     header = f"| {'Workload Pattern':<36} | {'Avg Throughput':<17} | {'Network Bandwidth':<22} | {'CPU Usage':<9} |"
     print(header)
@@ -53,6 +53,7 @@ def display_results(result_path: str) -> None:
         name = (
             b.get("name", "")
             .replace("test_downloads_multi_proc_multi_coro[", "")
+            .replace("test_uploads_multi_proc_multi_coro[", "")
             .replace("]", "")
         )
         extra = b.get("extra_info", {})

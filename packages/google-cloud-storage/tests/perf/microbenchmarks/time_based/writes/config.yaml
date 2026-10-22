@@ -1,0 +1,22 @@
+common:
+  bucket_types:
+    - "regional"
+    - "rapid"
+  file_sizes_mib:
+    - 10240 # 10GiB
+  chunk_sizes_kib: [102400] # 100MiB
+  rounds: 1
+  duration: 30 # seconds
+  warmup_duration: 5 # seconds
+
+workload:
+  ############# multi process multi coroutine #########
+  - name: "write_seq_multi_process"
+    pattern: "seq"
+    coros: [1]
+    processes: [48]
+
+
+defaults:
+  DEFAULT_RAPID_BUCKET: "gcs-write-bench-zb-us-west4-a"
+  DEFAULT_STANDARD_BUCKET: "gcs-write-bench-rb-us-west4"
